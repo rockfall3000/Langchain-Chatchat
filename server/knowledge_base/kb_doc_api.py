@@ -16,6 +16,14 @@ from server.db.repository.knowledge_file_repository import get_file_detail
 from typing import List
 from langchain.docstore.document import Document
 
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+
+tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-reranker-large')
+model = AutoModelForSequenceClassification.from_pretrained('BAAI/bge-reranker-large')
+model.eval()
+
 
 class DocumentWithScore(Document):
     score: float = None
@@ -36,6 +44,7 @@ def search_docs(
         return []
     docs = kb.search_docs(query, top_k, score_threshold)
     data = [DocumentWithScore(**x[0].dict(), score=x[1]) for x in docs]
+    print(data)
     return data
 
 

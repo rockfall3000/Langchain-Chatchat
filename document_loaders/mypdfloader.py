@@ -1,6 +1,15 @@
 from typing import List
 from langchain.document_loaders.unstructured import UnstructuredFileLoader
 import tqdm
+import re
+
+
+# 合并多余空格
+def merge_spaces(text):
+    pattern = r' +'
+    repl = ' '
+    result = re.sub(pattern, repl, text)
+    return result
 
 
 class RapidOCRPDFLoader(UnstructuredFileLoader):
@@ -21,8 +30,20 @@ class RapidOCRPDFLoader(UnstructuredFileLoader):
                 # 立即显示进度条更新结果
                 b_unit.refresh()
                 # TODO: 依据文本与图片顺序调整处理方式
-                text = page.get_text("")
-                resp += text + "\n"
+                # text = page.get_text("")
+                # laurence 去除多余空格
+                # text = merge_spaces(text)
+                # resp += text + "\n"
+                blocks = page.get_text("blocks")
+                for block in blocks:
+                    text = block[4]
+                    # print("******************")
+                    print(block)
+                    if (block[1] > 70 and block[3] < 770):
+                        # print("body")
+                        resp += text
+                    else:
+                        print("header/footer")
 
                 img_list = page.get_images()
                 for img in img_list:
@@ -43,6 +64,6 @@ class RapidOCRPDFLoader(UnstructuredFileLoader):
 
 
 if __name__ == "__main__":
-    loader = RapidOCRPDFLoader(file_path="../tests/samples/ocr_test.pdf")
+    loader = RapidOCRPDFLoader(file_path="D:\\sync\\llm\\摸底测试文档105\\人力\\信美人寿相互保险社员工手册2023版.pdf")
     docs = loader.load()
     print(docs)

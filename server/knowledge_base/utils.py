@@ -403,8 +403,19 @@ if __name__ == "__main__":
     from pprint import pprint
 
     kb_file = KnowledgeFile(
-        filename="/home/congyin/Code/Project_Langchain_0814/Langchain-Chatchat/knowledge_base/csv1/content/gm.csv",
+        # filename="/home/congyin/Code/Project_Langchain_0814/Langchain-Chatchat/knowledge_base/csv1/content/gm.csv",
+        filename="D:\\sync\\llm\\摸底测试文档105\\人力\\信美人寿相互保险社员工手册2023版.pdf",
         knowledge_base_name="samples")
-    # kb_file.text_splitter_name = "RecursiveCharacterTextSplitter"
     docs = kb_file.file2docs()
     # pprint(docs[-1])
+
+    kb_file.text_splitter_name = "RecursiveCharacterTextSplitter"
+    #if text_splitter is None:
+    text_splitter = make_text_splitter(splitter_name=kb_file.text_splitter_name, chunk_size=250,
+                                           chunk_overlap=0)
+    docs = text_splitter.split_documents(docs)
+    #chunks = text_splitter.split_text(text)
+    pprint(f"文档切分完成")
+    for chunk in docs:
+        print(chunk)
+
