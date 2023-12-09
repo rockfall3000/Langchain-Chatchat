@@ -15,7 +15,7 @@ from pprint import pprint
 api_base_url = api_address()
 
 
-kb = "kb_for_api_test"
+kb = "kb_hr"
 test_files = {
     "FAQ.MD": str(root_path / "docs" / "FAQ.MD"),
     "README.MD": str(root_path / "README.MD"),
@@ -212,3 +212,7 @@ def test_delete_kb_after(api="/knowledge_base/delete_knowledge_base"):
     assert data["code"] == 200
     assert isinstance(data["data"], list) and len(data["data"]) > 0
     assert kb not in data["data"]
+
+
+test_search_docs()
+
