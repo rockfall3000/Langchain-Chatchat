@@ -82,14 +82,14 @@ def calc_similarity(str1, str2):
 
 
 # 从json文件中读取问题集
-with open('./questions-hr.json', 'r') as f:
+with open('./data/questions-hr.json', 'r') as f:
     data = json.load(f)
     pprint(data)
 
 # calc_similarity()
 
 # 初始化csv文件输出writer
-with open('data.csv', 'w') as f:
+with open('./output/data.csv', 'w') as f:
     writer = csv.writer(f)
     writer.writerow(['question', 'llm_answer', 'similarity', 'standard_answer'])
     # 向LLM提问并将答案输出到csv文件中
