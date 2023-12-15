@@ -1,3 +1,4 @@
+import time
 from pprint import pprint
 import json
 import csv
@@ -68,7 +69,7 @@ def test_knowledge_chat(query, kb):
     return data
 
 
-embedding_model = SentenceTransformer('/mnt/workspace/bge-large-zh')#, device='cuda'
+embedding_model = SentenceTransformer('/mnt/workspace/bge-large-zh-v1.5')#, device='cuda'
 
 def calc_similarity(str1, str2):
     # multi-qa-MiniLM-L6-cos-v1可以替换成其他语言模型，即使不是sentence tranformers库官方列出的
@@ -86,10 +87,9 @@ with open('./questions-hr.json', 'r') as f:
     data = json.load(f)
     pprint(data)
 
-# calc_similarity()
-
 # 初始化csv文件输出writer
-with open('data.csv', 'w') as f:
+filename = 'result-'+time.strftime("%Y%m%d%H%M%S", time.localtime())+'.csv'
+with open(filename, 'w') as f:
     writer = csv.writer(f)
     writer.writerow(['question', 'llm_answer', 'similarity', 'standard_answer'])
     # 向LLM提问并将答案输出到csv文件中
@@ -98,7 +98,7 @@ with open('data.csv', 'w') as f:
         real_question = "根据文档《"+record['relatedDoc']+"》，请回答："+record['question']
         print("request with question:"+real_question)
         ret = test_knowledge_chat(real_question, 'kb-hr-1127')["answer"].replace("\n", "")
-        #print(ret)
+        # print(ret)
         writer.writerow([real_question, ret, calc_similarity(ret, record['stdAnswer']), record['stdAnswer']])
         # time.sleep(10)
 
