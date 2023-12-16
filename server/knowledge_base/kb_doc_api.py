@@ -18,11 +18,12 @@ from langchain.docstore.document import Document
 
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
+import np
 
 
-tokenizer = AutoTokenizer.from_pretrained('/mnt/workspace/bge-reranker-large')
-model = AutoModelForSequenceClassification.from_pretrained('/mnt/workspace/bge-reranker-large')
-model.eval()
+rerank_tokenizer = AutoTokenizer.from_pretrained('/mnt/workspace/bge-reranker-large')
+rerank_model = AutoModelForSequenceClassification.from_pretrained('/mnt/workspace/bge-reranker-large')
+rerank_model.eval()
 
 
 class DocumentWithScore(Document):
@@ -44,8 +45,28 @@ def search_docs(
         return []
     docs = kb.search_docs(query, top_k, score_threshold)
     data = [DocumentWithScore(**x[0].dict(), score=x[1]) for x in docs]
-    print(data)
-    return data
+    #print(data)
+    pairs = []
+    for i in range(len(data)):
+        pairs.append([query, data[i].page_content])
+    batch_size=50
+    with torch.no_grad():
+        all_scores = []
+        for i in range(0, len(pairs), batch_size):
+            batch_pairs = pairs[i:i + batch_size]
+
+            inputs = rerank_tokenizer(batch_pairs, padding=True, truncation=True, return_tensors='pt',
+                                           max_length=512).to('cpu')
+            scores = rerank_model(**inputs, return_dict=True).logits.view(
+                -1, ).float().detach().cpu().numpy()
+            all_scores.extend(scores)
+        sorted_indices = np.argsort(all_scores)[::-1]
+
+    result_data = []
+    for i in range(len(data)):
+        result_data.append(data[sorted_indices[i]])
+    print(result_data)
+    return result_data
 
 
 def list_files(

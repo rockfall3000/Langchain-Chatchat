@@ -45,7 +45,7 @@ async def openai_chat(msg: OpenAiChatMsgIn):
             else:
                 if response.choices:
                     answer = response.choices[0].message.content
-                    print(answer)
+                    # print(answer)
                     yield(answer)
         except Exception as e:
             msg = f"获取ChatCompletion时出错：{e}"

@@ -69,7 +69,7 @@ def test_knowledge_chat(query, kb):
     return data
 
 
-embedding_model = SentenceTransformer('/mnt/workspace/bge-large-zh-v1.5')#, device='cuda'
+# embedding_model = SentenceTransformer('/mnt/workspace/bge-large-zh-v1.5')#, device='cuda'
 
 def calc_similarity(str1, str2):
     # multi-qa-MiniLM-L6-cos-v1可以替换成其他语言模型，即使不是sentence tranformers库官方列出的
@@ -82,14 +82,17 @@ def calc_similarity(str1, str2):
     return similarity
 
 
+test_file_name = './data/questions-hr.json'
+knowledge_base_name = 'kb-hr-1213'
+output_file_name = './output/result-'+time.strftime("%Y%m%d%H%M%S", time.localtime())+'.csv'
+
 # 从json文件中读取问题集
-with open('./questions-hr.json', 'r') as f:
+with open(test_file_name, 'r') as f:
     data = json.load(f)
-    pprint(data)
+    pprint('questions count:%d' %len(data))
 
 # 初始化csv文件输出writer
-filename = './output/result-'+time.strftime("%Y%m%d%H%M%S", time.localtime())+'.csv'
-with open(filename, 'w') as f:
+with open(output_file_name, 'w') as f:
     writer = csv.writer(f)
     writer.writerow(['question', 'llm_answer', 'similarity', 'standard_answer'])
     # 向LLM提问并将答案输出到csv文件中
@@ -97,8 +100,9 @@ with open(filename, 'w') as f:
         # TODO 拼接提示词，考虑由LangChain实现
         real_question = "根据文档《"+record['relatedDoc']+"》，请回答："+record['question']
         print("request with question:"+real_question)
-        ret = test_knowledge_chat(real_question, 'kb-hr-1127')["answer"].replace("\n", "")
+        ret = test_knowledge_chat(real_question, knowledge_base_name)["answer"].replace("\n", "")
         # print(ret)
-        writer.writerow([real_question, ret, calc_similarity(ret, record['stdAnswer']), record['stdAnswer']])
+        # calc_similarity(ret, record['stdAnswer'])
+        writer.writerow([real_question, ret, 'null', record['stdAnswer']])
         # time.sleep(10)
 
