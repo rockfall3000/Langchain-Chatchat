@@ -88,7 +88,7 @@ with open('./questions-hr.json', 'r') as f:
     pprint(data)
 
 # 初始化csv文件输出writer
-filename = 'result-'+time.strftime("%Y%m%d%H%M%S", time.localtime())+'.csv'
+filename = './output/result-'+time.strftime("%Y%m%d%H%M%S", time.localtime())+'.csv'
 with open(filename, 'w') as f:
     writer = csv.writer(f)
     writer.writerow(['question', 'llm_answer', 'similarity', 'standard_answer'])

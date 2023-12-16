@@ -20,8 +20,8 @@ import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
-tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-reranker-large')
-model = AutoModelForSequenceClassification.from_pretrained('BAAI/bge-reranker-large')
+tokenizer = AutoTokenizer.from_pretrained('/mnt/workspace/bge-reranker-large')
+model = AutoModelForSequenceClassification.from_pretrained('/mnt/workspace/bge-reranker-large')
 model.eval()
 
 

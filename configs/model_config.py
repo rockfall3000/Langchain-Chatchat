@@ -7,7 +7,7 @@ import os
 MODEL_ROOT_PATH = "/mnt/workspace/"
 
 # 选用的 Embedding 名称
-EMBEDDING_MODEL = "bge-large-zh"
+EMBEDDING_MODEL = "bge-large-zh-v1.5"
 
 # Embedding 模型运行设备。设为"auto"会自动检测，也可手动设定为"cuda","mps","cpu"其中之一。
 EMBEDDING_DEVICE = "auto"
@@ -142,6 +142,7 @@ MODEL_PATH = {
         "bge-small-zh": "BAAI/bge-small-zh",
         "bge-base-zh": "BAAI/bge-base-zh",
         "bge-large-zh": "BAAI/bge-large-zh",
+        "bge-large-zh-v1.5": "BAAI/bge-large-zh-v1.5",
         "bge-large-zh-noinstruct": "BAAI/bge-large-zh-noinstruct",
         "bge-base-zh-v1.5": "BAAI/bge-base-zh-v1.5",
         "bge-large-zh-v1.5": "BAAI/bge-large-zh-v1.5",
