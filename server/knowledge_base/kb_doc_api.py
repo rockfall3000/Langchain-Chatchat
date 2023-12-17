@@ -18,7 +18,6 @@ from langchain.docstore.document import Document
 
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
-import np
 
 
 rerank_tokenizer = AutoTokenizer.from_pretrained('/mnt/workspace/bge-reranker-large')
@@ -45,14 +44,15 @@ def search_docs(
         return []
     docs = kb.search_docs(query, top_k, score_threshold)
     data = [DocumentWithScore(**x[0].dict(), score=x[1]) for x in docs]
+    docs_count = len(data)
     #print(data)
     pairs = []
-    for i in range(len(data)):
+    for i in range(docs_count):
         pairs.append([query, data[i].page_content])
     batch_size=50
     with torch.no_grad():
         all_scores = []
-        for i in range(0, len(pairs), batch_size):
+        for i in range(0, docs_count, batch_size):
             batch_pairs = pairs[i:i + batch_size]
 
             inputs = rerank_tokenizer(batch_pairs, padding=True, truncation=True, return_tensors='pt',
@@ -62,9 +62,14 @@ def search_docs(
             all_scores.extend(scores)
         sorted_indices = np.argsort(all_scores)[::-1]
 
-    result_data = []
-    for i in range(len(data)):
-        result_data.append(data[sorted_indices[i]])
+    # zigzag sort
+    result_data = [None] * docs_count
+    for i in range(docs_count):
+        if i % 2 == 0:
+            idx = i//2
+        else:
+            idx = docs_count - 1 - i//2
+        result_data[idx] = data[sorted_indices[i]]
     print(result_data)
     return result_data
 
