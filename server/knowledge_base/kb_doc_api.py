@@ -18,6 +18,7 @@ from langchain.docstore.document import Document
 
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
+import np
 
 
 rerank_tokenizer = AutoTokenizer.from_pretrained('/mnt/workspace/bge-reranker-large')

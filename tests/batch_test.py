@@ -1,6 +1,7 @@
 import time
 from pprint import pprint
 import json
+import os
 import csv
 
 import requests
@@ -82,8 +83,10 @@ def calc_similarity(str1, str2):
     return similarity
 
 
-def run_batch_test(data, test_file_name, knowledge_base_name):
-    output_file_name = './output/result-'+time.strftime("%Y%m%d%H%M%S", time.localtime())+'.csv'
+def batch_test_with_file(test_file_name, output_file_name, knowledge_base_name):
+    # 从json文件中读取问题集
+    with open(test_file_name, 'r') as f:
+        data = json.load(f)
 
     # 初始化csv文件输出writer
     with open(output_file_name, 'w') as f:
@@ -101,21 +104,12 @@ def run_batch_test(data, test_file_name, knowledge_base_name):
             # time.sleep(10)
 
 
-def batch_test_with_file(test_file_name, knowledge_base_name):
-    # 从json文件中读取问题集
-    with open(test_file_name, 'r') as f:
-        data = json.load(f)
-        run_batch_test(data, test_file_name, knowledge_base_name)
-
-
-def batch_test_with_path(test_path_name, knowledge_base_name):
+def batch_test_with_path(test_path_name, output_file_name, knowledge_base_name):
     # 列出目录下的所有文件
     for file in os.listdir(test_path_name):
-        # 从json文件中读取问题集
-        with open(file, 'r') as f:
-            data = json.load(f)
-            run_batch_test(data, test_file_name, knowledge_base_name)
+        batch_test_with_file(test_path_name+file, output_file_name, knowledge_base_name)
 
 
-# batch_test_with_file('./data/questions-hr.json', 'kb-hr-1213')
-batch_test_with_path('./data/questions', 'kb-xinmei-all')
+output_file_name = './output/result-'+time.strftime("%Y%m%d%H%M%S", time.localtime())+'.csv'
+# batch_test_with_file('./questions/questions-hr.json', output_file_name, 'kb-hr-1213')
+batch_test_with_path('./questions/', output_file_name, 'kb-xinmei-all')
