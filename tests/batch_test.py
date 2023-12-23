@@ -82,27 +82,40 @@ def calc_similarity(str1, str2):
     return similarity
 
 
-test_file_name = './data/questions-hr.json'
-knowledge_base_name = 'kb-hr-1213'
-output_file_name = './output/result-'+time.strftime("%Y%m%d%H%M%S", time.localtime())+'.csv'
+def run_batch_test(data, test_file_name, knowledge_base_name):
+    output_file_name = './output/result-'+time.strftime("%Y%m%d%H%M%S", time.localtime())+'.csv'
 
-# 从json文件中读取问题集
-with open(test_file_name, 'r') as f:
-    data = json.load(f)
-    pprint('questions count:%d' %len(data))
+    # 初始化csv文件输出writer
+    with open(output_file_name, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(['question', 'llm_answer', 'similarity', 'standard_answer'])
+        # 向LLM提问并将答案输出到csv文件中
+        for record in data['questions']:
+            # TODO 拼接提示词，考虑由LangChain实现
+            real_question = "根据文档《"+record['relatedDoc']+"》，请回答："+record['question']
+            print("request with question:"+real_question)
+            ret = test_knowledge_chat(real_question, knowledge_base_name)["answer"].replace("\n", "")
+            # print(ret)
+            # calc_similarity(ret, record['stdAnswer'])
+            writer.writerow([real_question, ret, 'null', record['stdAnswer']])
+            # time.sleep(10)
 
-# 初始化csv文件输出writer
-with open(output_file_name, 'w') as f:
-    writer = csv.writer(f)
-    writer.writerow(['question', 'llm_answer', 'similarity', 'standard_answer'])
-    # 向LLM提问并将答案输出到csv文件中
-    for record in data['questions']:
-        # TODO 拼接提示词，考虑由LangChain实现
-        real_question = "根据文档《"+record['relatedDoc']+"》，请回答："+record['question']
-        print("request with question:"+real_question)
-        ret = test_knowledge_chat(real_question, knowledge_base_name)["answer"].replace("\n", "")
-        # print(ret)
-        # calc_similarity(ret, record['stdAnswer'])
-        writer.writerow([real_question, ret, 'null', record['stdAnswer']])
-        # time.sleep(10)
 
+def batch_test_with_file(test_file_name, knowledge_base_name):
+    # 从json文件中读取问题集
+    with open(test_file_name, 'r') as f:
+        data = json.load(f)
+        run_batch_test(data, test_file_name, knowledge_base_name)
+
+
+def batch_test_with_path(test_path_name, knowledge_base_name):
+    # 列出目录下的所有文件
+    for file in os.listdir(test_path_name):
+        # 从json文件中读取问题集
+        with open(file, 'r') as f:
+            data = json.load(f)
+            run_batch_test(data, test_file_name, knowledge_base_name)
+
+
+# batch_test_with_file('./data/questions-hr.json', 'kb-hr-1213')
+batch_test_with_path('./data/questions', 'kb-xinmei-all')
